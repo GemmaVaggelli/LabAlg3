@@ -1,0 +1,367 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage[italian]{babel}
+\usepackage{listings,xcolor}
+\definecolor{javared}{rgb}{0.6,0,0} % for strings
+\definecolor{javagreen}{rgb}{0.25,0.5,0.35} % comments
+\definecolor{javapurple}{rgb}{0.5,0,0.35} % keywords
+\definecolor{javadocblue}{rgb}{0.25,0.35,0.75} % javadoc
+
+\lstset{
+  tabsize = 4, %% set tab space width
+  showstringspaces = false, %% prevent space marking in strings, string is defined as the text that is generally printed directly to the console
+  numbers = left, %% display line numbers on the left
+  keywordstyle=\color{javagreen}\bfseries,
+  stringstyle=\color{javared},
+  commentstyle=\color{javagreen},
+  morecomment=[s][\color{javadocblue}]{/*}*{*/},
+  rulecolor = \color{black}, %% set frame color to avoid being affected by text color
+  basicstyle = \small \ttfamily , %% set listing font and size
+  breaklines = true, %% enable line breaking
+  numberstyle = \tiny,
+}
+
+
+
+\begin{document}
+\begin{titlepage}
+   \begin{center}
+       \vspace*{1cm}
+	   \begin{Huge}
+       \textbf{Valutazione sulle Componenti Strettamente Connesse nei grafi}
+	   \end{Huge}
+       \vspace{1.5cm}
+       \\
+       \begin{Large}
+        Relazione esercizio 3
+            
+       \vspace{1.5cm}
+
+       Laboratorio di Algoritmi e Strutture Dati
+	   \vspace{3cm}
+            
+       Gemma Vaggelli \\
+       6348717
+            
+       \vfill
+     
+    
+            
+       Ingegneria Informatica\\
+       Università degli studi di Firenze
+       \end{Large}
+       
+            
+   \end{center}
+\end{titlepage}
+
+\section{Introduzione}
+
+In questa relazione andrò a descrivere i risultati ottenuti dalla sperimentazione 
+dell'algoritmo per la ricerca delle componenti fortemente connesse all'interno di un grafo orientato.\\
+Vedremo cosa cambia all'aumentare del numero di nodi e della probabilità di 
+presenza di archi tra i nodi.
+Ci aspettiamo di vedere una convergenza a una sola componente connessa al crescere della probabilità e della dimensione. \
+
+
+\section{Caratteristiche}
+
+\subsection{Caratteristiche di un Grafo}
+
+Un grafo orientato è una raccolta di due insiemi (V, E).\\
+V è un insieme finito mentre E è una relazione binaria in V.\\
+V è un insieme dei nodi e E l'insieme degli archi. Un arco è un insieme {u,v} dove u,v appartengono a V e u != v. Poiché è orientato ogni arco ha una direzione, quindi un nodo di partenza e un nodo di arrivo.\\
+
+Un grafo orientato si dice \textbf{fortemente connesso} se due vertici qualsiasi sono raggiungibili l'uno dall'altro
+\\
+\begin{figure}[H]
+\includegraphics[width = 10cm]{Graph}
+\centering
+\caption{Esempio di un grafo orientato fortemente connesso}
+\end{figure}
+
+\noindent
+Un grafo viene rappresentato comunemente con:
+\begin{itemize}
+\item \textbf{Liste di adiacenza}
+\item \textbf{Matrice di incidenza}
+\end{itemize}
+In questo esercizio ho scelto la prima rappresentazione.
+\newpage
+
+
+\subsection{Depht First Search}
+
+Per trovare le componenti fortemente connesse è necessario introdurre un algoritmo di esplorazione in profondità del grafo. In particolare la DFS, che appena scopre un arco continua a esplorare da questo,
+ e se necessario re-inizia da diversi nodi.
+ 
+\begin{lstlisting}
+DFS(G)
+	for ogni vertice u in G.V
+		u.color = WHITE
+		u.pi = NIL
+	time = 0
+	for ogni vertice u in G.V
+		if u.color = WHITE
+			DFS - VISIT(G, u)
+			
+DFS - VISIT(G, u)
+	time = time + 1
+	u.d = time
+	u.color = GRAY
+	for ogni v in G.Adj[u]
+		if v.color = WHITE
+			v.pi = u
+			DFS - VISIT(G, v)
+	u.color = BLACK
+	time = time + 1
+	u.f = time
+	
+\end{lstlisting}
+
+Questo algoritmo di esplorazione ha un costo in termini di tempo di $\Theta(|V| + |E|)$ \\\\
+
+\subsection{Componenti Strettamente Connesse}
+
+Dato un grafo G lo pseudoalgoritmo per trovare le componenti fortemente connesse di G è il seguente:\\
+
+\noindent
+Strongly Connected Components of G:
+\begin{enumerate}
+\item	DFS(G)
+\item	si calcola la trasposta di G
+\item	si esegue la DFS($G^T$) però prendendo i nodi in ordine decrescente rispetto ai tempi u.f
+\item	si restituiscono le radici delle componenti fortemente connesse
+\end{enumerate}
+	
+\noindent
+Strongly Connected Components of G impiega $\Theta(|V| + |E|)$
+
+\section{Documentazione}
+Andiamo adesso a vedere come si comporta la SCC al crescere della probabilità di presenza di archi e 
+al crescere della dimensione. In particolare andrò a differenziare la probabilità di un fattore $10$, quindi 
+andrò a elencare un grafico per ogni incremento nella probabilità.
+Gli esperimenti vengono svolti in questo caso 20 volte, e viene fatta una media per avere risultati più attendibili e precisi. I plot rappresentano i valori medi dei 20 esperimenti.
+La dimensione dei grafi viene incrementata fino a un numero pari a 100 nodi.
+Qui nelle figure vediamo sull'asse delle x la dimensione che aumenta di 1 nodo alla volta, mentre sulla y abbiamo due funzioni: la prima rappresenta il numero di SCC trovate per il grafo casuale con la propria probabilità di presenza di archi; la seconda è il tempo impiegato per trovare il numero di SCC.Nella colonna di destra andiamo a zoomare per vedere meglio i tempi.
+
+\paragraph{Hardware}
+I test sono stati eseguiti su un PC Desktop con sistema operativo Windows 10 Home a 64 bit, un processore Intel Core i5-7200U con 8Gb di RAM e Visual Studio Code come IDE.
+
+\subsection{Grafici}
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob0_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi dello 0\% }
+        \label{fig:prob1}
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob0_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi dello 0\% }
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob10_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 10\% }
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob10_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 10\% }
+    \end{minipage}}}
+    \centering
+\end{figure}
+\newpage
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob20_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 20\%}
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob20_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 20\%}
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob30_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 30\% }
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob30_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 30\%}
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob40_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 40\%}
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob40_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 40\% }
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob50_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 50\% }
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob50_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 50\% }
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob60_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 60\% }
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob60_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 60\%}
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob70_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 70\%}
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob70_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 70\%}
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob80_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi dell' 80\% }
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob80_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi dell' 80\% }
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob90_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 90\% }
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob90_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 90\% }
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+\begin{figure}[H]
+\centering
+    \makebox[\textwidth]{\makebox[1.25\textwidth]{%
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob100_scc_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 100\% }
+        \label{fig:prob2}
+    \end{minipage}\hfill
+    \begin{minipage}{.6\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{prob100_and_time}
+        \caption{Numero di SCC per probabilità di presenza di archi del 100\% }
+    \end{minipage}}}
+    \centering
+\end{figure}
+
+
+\begin{center}
+\begin{figure}[H]
+\includegraphics[width =\textwidth]{prob_and_scc}
+\caption{Comportamento del grafo all' incremento della probabilità }
+\label{fig:probscc}
+\end{figure}
+\end{center}
+
+\section{Analisi e Conclusione}
+
+Analizzando cosa succede al numero di Componenti Strettamente Connesse al crescere della probabilità di presenza di archi, il numero di componenti fortemente connesse dovrebbe tendere a 1. Questo dovrebbe avvenire poiché ad esempio a probabilità 100\% ogni nodo è connesso a tutti gli altri nodi. \\
+Ciò si vede dai grafici precedenti (Figure \ref{fig:prob1} - \ref{fig:prob2} ) e da quello rappresentato in Figura \ref{fig:probscc} al crescere della probabilità.
+
+
+
+Al tendere della probabilità a 0\%, invece, nessun nodo è collegato a un qualsiasi altro nodo, quindi 
+il numero di SCC dovrebbe essere uguale al numero di nodi.\\
+Anche questo fatto si nota dai grafici 
+
+
+Guardando inoltre i tempi delle SCC, si nota che al crescere della probabilità
+il tempo tende asintoticamente a $N^2$, vediamone il perché.
+Il tempo di ogni SCC è un $\Theta(|V| + |E|)$.
+Nel caso in cui la probabilità è del 100\% , e quindi si ha un numero di archi pari a 
+$(N-1)*N$, il numero di archi è asintoticamente uguale a $N^2$.
+Perciò al crescere della dimensione si ha un andamento asintotico del tempo impiegato pari a $N^2$
+
+
+
+\end{document}
